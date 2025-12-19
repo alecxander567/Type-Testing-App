@@ -3,6 +3,15 @@ import { FaKeyboard, FaBolt, FaRocket } from "react-icons/fa";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
+// Interfaces
+interface LoginResponse {
+  message: string;
+  user: {
+    id: number;
+    username: string;
+  };
+}
+
 function Landingpage() {
   const navigate = useNavigate();
 
@@ -65,10 +74,15 @@ function Landingpage() {
     }
 
     try {
-      const response = await axios.post("http://127.0.0.1:8000/api/login/", {
-        username: loginUsername,
-        password: loginPassword,
-      });
+      const response = await axios.post<LoginResponse>(
+        "http://127.0.0.1:8000/api/login/",
+        {
+          username: loginUsername,
+          password: loginPassword,
+        }
+      );
+
+      localStorage.setItem("username", response.data.user.username);
 
       setLoginAlert("Login successful!");
       setTimeout(() => setLoginAlert(null), 1500);

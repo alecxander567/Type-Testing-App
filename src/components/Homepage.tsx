@@ -1,6 +1,6 @@
 import { Home, Clock, User, LogOut, Keyboard, Zap } from "lucide-react";
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   LineChart,
   Line,
@@ -15,6 +15,9 @@ import {
 function Homepage() {
   // Active menu items
   const [activeMenu, setActiveMenu] = useState("Dashboard");
+
+  // States
+  const [username, setUsername] = useState<string>("");
 
   // Logout handler
   const handleLogout = async () => {
@@ -54,6 +57,12 @@ function Homepage() {
     { test: "Test 7", wpm: 72 },
   ];
 
+  // Get username from localStorage
+  useEffect(() => {
+    const storedUsername = localStorage.getItem("username");
+    if (storedUsername) setUsername(storedUsername);
+  }, []);
+
   return (
     <div className="flex flex-col h-screen bg-black text-blue-100">
       <header className="flex items-center justify-between bg-zinc-950 border-b border-blue-500/20 px-6 py-4 shadow-[0_0_10px_rgba(59,130,246,0.15)]">
@@ -89,7 +98,9 @@ function Homepage() {
       <main className="flex-1 overflow-y-auto p-6 md:p-8">
         <div className="flex items-center justify-between mb-4 md:mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-blue-400">Welcome 👋</h1>
+            <h1 className="text-3xl font-bold text-blue-400">
+              Welcome <span className="text-blue-300">{username}</span>👋
+            </h1>
             <p className="text-blue-200/70 mt-1 md:mt-2">
               Start a typing test or check your performance analytics.
             </p>
