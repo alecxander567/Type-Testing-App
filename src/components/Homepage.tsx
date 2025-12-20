@@ -1,6 +1,10 @@
 import { Home, Clock, User, LogOut, Keyboard, Zap } from "lucide-react";
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { useTypingTest } from "./hooks/useTypingTest";
+import TypingTestModal from "./component/TypingTestModal";
+import { useTypingStats } from "./hooks/useTypingStats";
+
 import {
   LineChart,
   Line,
@@ -18,6 +22,15 @@ function Homepage() {
 
   // States
   const [username, setUsername] = useState<string>("");
+  const [typingData, setTypingData] = useState<{ test: string; wpm: number }[]>(
+    []
+  );
+  const { averageWpm, averageAccuracy, testsTaken } = useTypingStats(username);
+
+  // Modals state
+  const [showTypingModal, setShowTypingModal] = useState(false);
+
+  const typing = useTypingTest(username);
 
   // Logout handler
   const handleLogout = async () => {
@@ -46,16 +59,40 @@ function Homepage() {
     { name: "Profile", icon: <User size={18} /> },
   ];
 
-  // Sample data
-  const typingData = [
-    { test: "Test 1", wpm: 65 },
-    { test: "Test 2", wpm: 70 },
-    { test: "Test 3", wpm: 72 },
-    { test: "Test 4", wpm: 68 },
-    { test: "Test 5", wpm: 75 },
-    { test: "Test 6", wpm: 73 },
-    { test: "Test 7", wpm: 72 },
-  ];
+  // Fetch typing results for line chart
+  useEffect(() => {
+    if (!username) return;
+
+    let intervalId: number;
+
+    const fetchTypingResults = async () => {
+      try {
+        const res = await axios.get(
+          `http://localhost:8000/api/results/?username=${username}`,
+          {
+            headers: {
+              Authorization: `Token ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+
+        const data = res.data.map((result: any, index: number) => ({
+          test: `Test ${index + 1}`,
+          wpm: result.wpm,
+        }));
+
+        setTypingData(data);
+      } catch (error) {
+        console.error("Failed to fetch typing results", error);
+      }
+    };
+
+    fetchTypingResults();
+
+    intervalId = window.setInterval(fetchTypingResults, 3000);
+
+    return () => clearInterval(intervalId);
+  }, [username]);
 
   // Get username from localStorage
   useEffect(() => {
@@ -107,9 +144,12 @@ function Homepage() {
           </div>
 
           <button
-            onClick={() => console.log("Start typing clicked")}
-            className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-bold text-lg flex items-center gap-2 transition-shadow shadow-md hover:shadow-lg">
-            <Keyboard size={20} />
+            onClick={() => {
+              setShowTypingModal(true);
+              typing.startTest();
+            }}
+            className="flex items-center gap-2 bg-blue-500 hover:bg-blue-600 text-white font-bold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 active:scale-95 text-lg">
+            <Keyboard className="w-6 h-6" />
             Start Typing
           </button>
         </div>
@@ -190,7 +230,7 @@ function Homepage() {
             <h2 className="text-xl font-semibold text-blue-400 mb-2">
               Average WPM
             </h2>
-            <p className="text-3xl font-bold text-blue-300">72</p>
+            <p className="text-3xl font-bold text-blue-300">{averageWpm}</p>
             <p className="text-blue-200/70 mt-1">Words per minute</p>
           </div>
 
@@ -198,7 +238,9 @@ function Homepage() {
             <h2 className="text-xl font-semibold text-blue-400 mb-2">
               Accuracy
             </h2>
-            <p className="text-3xl font-bold text-blue-300">95%</p>
+            <p className="text-3xl font-bold text-blue-300">
+              {averageAccuracy}%
+            </p>
             <p className="text-blue-200/70 mt-1">Correct keystrokes</p>
           </div>
 
@@ -206,11 +248,17 @@ function Homepage() {
             <h2 className="text-xl font-semibold text-blue-400 mb-2">
               Tests Taken
             </h2>
-            <p className="text-3xl font-bold text-blue-300">12</p>
+            <p className="text-3xl font-bold text-blue-300">{testsTaken}</p>
             <p className="text-blue-200/70 mt-1">Completed sessions</p>
           </div>
         </div>
       </main>
+
+      <TypingTestModal
+        isOpen={showTypingModal}
+        onClose={() => setShowTypingModal(false)}
+        typing={typing}
+      />
     </div>
   );
 }

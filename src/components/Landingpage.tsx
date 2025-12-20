@@ -143,38 +143,66 @@ function Landingpage() {
       </p>
 
       {showLogin && (
-        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-70 z-50">
-          <div className="bg-black p-8 rounded-xl border border-blue-500 w-96 max-w-full transform scale-90 transition-transform duration-300 animate-scaleUp relative">
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setShowLogin(false)}>
+          <div
+            className="relative w-full max-w-md rounded-2xl border border-blue-500 bg-black p-8 shadow-2xl 
+                 animate-[fadeInScale_0.25s_ease-out] text-blue-300"
+            onClick={(e) => e.stopPropagation()}>
+            <button
+              className="absolute top-4 right-4 text-blue-400 hover:text-blue-300 transition"
+              onClick={() => setShowLogin(false)}
+              aria-label="Close login modal">
+              ✕
+            </button>
+
             {loginAlert && (
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-blue-500 text-black px-6 py-3 rounded-lg shadow-lg z-50 animate-fadeIn">
+              <div className="mb-4 rounded-lg bg-blue-500 px-4 py-2 text-sm font-medium text-black animate-fadeIn">
                 {loginAlert}
               </div>
             )}
 
-            <h2 className="text-3xl text-blue-400 mb-6">Login</h2>
-            <input
-              type="text"
-              placeholder="Username"
-              value={loginUsername}
-              onChange={(e) => setLoginUsername(e.target.value)}
-              className="w-full mb-4 p-3 rounded border border-blue-500 bg-black text-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              value={loginPassword}
-              onChange={(e) => setLoginPassword(e.target.value)}
-              className="w-full mb-6 p-3 rounded border border-blue-500 bg-black text-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-            <div className="flex justify-end space-x-4">
+            <h2 className="mb-6 text-center text-3xl font-bold text-blue-400">
+              Welcome Back
+            </h2>
+
+            <div className="space-y-4">
+              <input
+                type="text"
+                placeholder="Username"
+                value={loginUsername}
+                onChange={(e) => setLoginUsername(e.target.value)}
+                className="w-full rounded-lg border border-blue-500 bg-black p-3 
+                     text-blue-300 placeholder-blue-600
+                     focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+
+              <input
+                type="password"
+                placeholder="Password"
+                value={loginPassword}
+                onChange={(e) => setLoginPassword(e.target.value)}
+                className="w-full rounded-lg border border-blue-500 bg-black p-3 
+                     text-blue-300 placeholder-blue-600
+                     focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+            </div>
+
+            <div className="mt-8 flex gap-3">
               <button
-                className="px-6 py-3 bg-blue-500 hover:bg-blue-400 text-black rounded-lg shadow-lg transition duration-300"
-                onClick={handleLogin}>
+                onClick={handleLogin}
+                className="flex-1 rounded-lg bg-blue-500 py-3 font-semibold text-black
+                     hover:bg-blue-400 transition shadow-lg">
                 Login
               </button>
+
               <button
-                className="px-6 py-3 border border-blue-500 text-blue-500 hover:text-black hover:bg-blue-500 rounded-lg transition duration-300"
-                onClick={() => setShowLogin(false)}>
+                onClick={() => setShowLogin(false)}
+                className="flex-1 rounded-lg border border-blue-500 py-3 font-semibold
+                     text-blue-400 hover:bg-blue-500 hover:text-black transition">
                 Cancel
               </button>
             </div>
@@ -183,45 +211,76 @@ function Landingpage() {
       )}
 
       {showSignup && (
-        <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-70 z-50 transition-opacity duration-500 animate-fadeIn">
-          <div className="bg-black p-8 rounded-xl border border-blue-500 w-96 max-w-full transform scale-90 transition-transform duration-300 animate-scaleUp">
-            <h2 className="text-3xl text-blue-400 mb-6">Sign Up</h2>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fadeIn"
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setShowSignup(false)}>
+          <div
+            className="relative w-full max-w-md rounded-2xl border border-blue-500 bg-black p-8
+                 text-blue-300 shadow-2xl animate-[fadeInScale_0.25s_ease-out]"
+            onClick={(e) => e.stopPropagation()}>
+            <button
+              className="absolute top-4 right-4 text-blue-400 hover:text-blue-300 transition"
+              onClick={() => setShowSignup(false)}
+              aria-label="Close signup modal">
+              ✕
+            </button>
 
-            <input
-              type="text"
-              placeholder="Username"
-              value={signupUsername}
-              onChange={(e) => setSignupUsername(e.target.value)}
-              className="w-full mb-4 p-3 rounded border border-blue-500 bg-black text-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-            <input
-              type="password"
-              placeholder="Password"
-              value={signupPassword}
-              onChange={(e) => setSignupPassword(e.target.value)}
-              className="w-full mb-4 p-3 rounded border border-blue-500 bg-black text-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
-            <input
-              type="password"
-              placeholder="Confirm Password"
-              value={signupConfirmPassword}
-              onChange={(e) => setSignupConfirmPassword(e.target.value)}
-              className="w-full mb-6 p-3 rounded border border-blue-500 bg-black text-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-400"
-            />
+            <h2 className="mb-6 text-center text-3xl font-bold text-blue-400">
+              Create Account
+            </h2>
 
             {signupMessage && (
-              <p className="text-red-500 mb-4">{signupMessage}</p>
+              <div className="mb-4 rounded-lg bg-red-500/90 px-4 py-2 text-sm font-medium text-black animate-fadeIn">
+                {signupMessage}
+              </div>
             )}
 
-            <div className="flex justify-end space-x-4">
+            <div className="space-y-4">
+              <input
+                type="text"
+                placeholder="Username"
+                value={signupUsername}
+                onChange={(e) => setSignupUsername(e.target.value)}
+                className="w-full rounded-lg border border-blue-500 bg-black p-3
+                     text-blue-300 placeholder-blue-600
+                     focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+
+              <input
+                type="password"
+                placeholder="Password"
+                value={signupPassword}
+                onChange={(e) => setSignupPassword(e.target.value)}
+                className="w-full rounded-lg border border-blue-500 bg-black p-3
+                     text-blue-300 placeholder-blue-600
+                     focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+
+              <input
+                type="password"
+                placeholder="Confirm Password"
+                value={signupConfirmPassword}
+                onChange={(e) => setSignupConfirmPassword(e.target.value)}
+                className="w-full rounded-lg border border-blue-500 bg-black p-3
+                     text-blue-300 placeholder-blue-600
+                     focus:outline-none focus:ring-2 focus:ring-blue-400"
+              />
+            </div>
+
+            <div className="mt-8 flex gap-3">
               <button
-                className="px-6 py-3 bg-blue-500 hover:bg-blue-400 text-black rounded-lg shadow-lg transition duration-300"
-                onClick={handleSignup}>
+                onClick={handleSignup}
+                className="flex-1 rounded-lg bg-blue-500 py-3 font-semibold text-black
+                     hover:bg-blue-400 transition shadow-lg">
                 Sign Up
               </button>
+
               <button
-                className="px-6 py-3 border border-blue-500 text-blue-500 hover:text-black hover:bg-blue-500 rounded-lg transition duration-300"
-                onClick={() => setShowSignup(false)}>
+                onClick={() => setShowSignup(false)}
+                className="flex-1 rounded-lg border border-blue-500 py-3 font-semibold
+                     text-blue-400 hover:bg-blue-500 hover:text-black transition">
                 Cancel
               </button>
             </div>
