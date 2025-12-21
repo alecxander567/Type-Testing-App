@@ -19,7 +19,7 @@ export function useTypingTest(username: string) {
     setCorrectWords(0);
     setInputValue("");
     setHasStartedTyping(false);
-    setIsRunning(false); // important
+    setIsRunning(false); 
     fetchTypingText(difficulty);
   };
 
