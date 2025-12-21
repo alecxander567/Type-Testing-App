@@ -9,38 +9,47 @@ export function useTypingTest(username: string) {
   const [correctWords, setCorrectWords] = useState(0);
   const [timeLeft, setTimeLeft] = useState(60);
   const [isRunning, setIsRunning] = useState(false);
+  const [hasStartedTyping, setHasStartedTyping] = useState(false);
+  const [difficulty, setDifficulty] = useState("Easy");
 
-  // Start the typing test
+  // Start the Typing Test
   const startTest = () => {
     setTimeLeft(60);
     setCurrentWordIndex(0);
     setCorrectWords(0);
     setInputValue("");
-    setIsRunning(true);
-    fetchTypingText();
+    setHasStartedTyping(false);
+    setIsRunning(false); // important
+    fetchTypingText(difficulty);
   };
 
-  // Fetch typing text from API
-  const fetchTypingText = async () => {
+  // Fetch typing text from API using axios
+  const fetchTypingText = async (diff: string) => {
     try {
-      const res = await fetch(
-        "http://localhost:8000/api/typing-text/?difficulty=easy"
+      const res = await axios.get(
+        `http://localhost:8000/api/typing-text/?difficulty=${diff.toLowerCase()}`
       );
 
-      if (!res.ok) {
-        throw new Error("Failed to fetch typing text");
-      }
-
-      const data = await res.json();
-      setTypingText(data.content ?? "");
+      setTypingText(res.data.content ?? "");
     } catch (error) {
       console.error("Typing text fetch failed:", error);
       setTypingText("");
     }
   };
 
+  // Fetch typing text whenever difficulty changes
+  useEffect(() => {
+    fetchTypingText(difficulty);
+    setInputValue("");
+  }, [difficulty]);
+
   // Typing handler
   const handleTyping = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!hasStartedTyping && e.key === " " && inputValue.trim().length > 0) {
+      setHasStartedTyping(true);
+      setIsRunning(true);
+    }
+
     if (e.key !== " ") return;
     e.preventDefault();
 
@@ -83,12 +92,19 @@ export function useTypingTest(username: string) {
 
     const duration = elapsedSeconds ?? 60;
 
+    const finalWpm = Math.round((correctWords / 60) * 60);
+    const finalAccuracy =
+      currentWordIndex === 0
+        ? 100
+        : Math.round((correctWords / currentWordIndex) * 100);
+
     try {
       await axios.post("http://localhost:8000/api/results/save/", {
         username,
-        wpm,
-        accuracy,
+        wpm: finalWpm,
+        accuracy: finalAccuracy,
         duration,
+        difficulty,
       });
     } catch (err) {
       console.error("Failed to save typing result:", err);
@@ -100,7 +116,15 @@ export function useTypingTest(username: string) {
     if (timeLeft === 0 && isRunning) {
       endTest(60);
     }
-  }, [timeLeft, isRunning]);
+  }, [
+    timeLeft,
+    isRunning,
+    wpm,
+    accuracy,
+    correctWords,
+    currentWordIndex,
+    difficulty,
+  ]);
 
   return {
     typingText,
@@ -111,5 +135,7 @@ export function useTypingTest(username: string) {
     wpm,
     accuracy,
     startTest,
+    difficulty,
+    setDifficulty,
   };
 }

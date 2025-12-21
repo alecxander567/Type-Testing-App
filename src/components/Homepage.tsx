@@ -1,9 +1,10 @@
-import { Home, Clock, User, LogOut, Keyboard, Zap } from "lucide-react";
+import { Keyboard, Zap } from "lucide-react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useTypingTest } from "./hooks/useTypingTest";
 import TypingTestModal from "./component/TypingTestModal";
 import { useTypingStats } from "./hooks/useTypingStats";
+import Navbar from "./component/Navbar";
 
 import {
   LineChart,
@@ -17,47 +18,20 @@ import {
 } from "recharts";
 
 function Homepage() {
-  // Active menu items
-  const [activeMenu, setActiveMenu] = useState("Dashboard");
-
   // States
   const [username, setUsername] = useState<string>("");
   const [typingData, setTypingData] = useState<{ test: string; wpm: number }[]>(
     []
   );
-  const { averageWpm, averageAccuracy, testsTaken } = useTypingStats(username);
+
+  const { averageWpm, averageAccuracy, testsTaken, mostPlayedDifficulty } =
+    useTypingStats(username);
 
   // Modals state
   const [showTypingModal, setShowTypingModal] = useState(false);
 
+  // Call the typing test hook
   const typing = useTypingTest(username);
-
-  // Logout handler
-  const handleLogout = async () => {
-    try {
-      await axios.post(
-        "http://localhost:8000/api/logout/",
-        {},
-        {
-          headers: {
-            Authorization: `Token ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-
-      localStorage.removeItem("token");
-      window.location.href = "/";
-    } catch (error) {
-      console.error("Logout failed", error);
-    }
-  };
-
-  // Menu items navbar
-  const menuItems = [
-    { name: "Dashboard", icon: <Home size={18} /> },
-    { name: "History", icon: <Clock size={18} /> },
-    { name: "Profile", icon: <User size={18} /> },
-  ];
 
   // Fetch typing results for line chart
   useEffect(() => {
@@ -102,35 +76,7 @@ function Homepage() {
 
   return (
     <div className="flex flex-col h-screen bg-black text-blue-100">
-      <header className="flex items-center justify-between bg-zinc-950 border-b border-blue-500/20 px-6 py-4 shadow-[0_0_10px_rgba(59,130,246,0.15)]">
-        <div className="flex items-center gap-2 text-2xl font-bold text-blue-400">
-          <Keyboard size={24} />
-          <span>TypeTest App</span>
-        </div>
-
-        <nav className="flex items-center gap-6">
-          {menuItems.map((item) => (
-            <button
-              key={item.name}
-              onClick={() => setActiveMenu(item.name)}
-              className={`flex items-center gap-2 px-3 py-1 rounded transition ${
-                activeMenu === item.name
-                  ? "text-blue-400 bg-blue-500/20"
-                  : "text-blue-300 hover:text-blue-400"
-              }`}>
-              {item.icon}
-              <span>{item.name}</span>
-            </button>
-          ))}
-
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 text-red-400 hover:text-red-500 transition px-3 py-1 rounded">
-            <LogOut size={18} />
-            <span>Log out</span>
-          </button>
-        </nav>
-      </header>
+      <Navbar />
 
       <main className="flex-1 overflow-y-auto p-6 md:p-8">
         <div className="flex items-center justify-between mb-4 md:mb-6">
@@ -225,7 +171,7 @@ function Homepage() {
             </LineChart>
           </ResponsiveContainer>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
           <div className="bg-zinc-900 p-4 md:p-6 rounded-xl shadow-lg border border-blue-500/20 flex flex-col items-center">
             <h2 className="text-xl font-semibold text-blue-400 mb-2">
               Average WPM
@@ -233,7 +179,6 @@ function Homepage() {
             <p className="text-3xl font-bold text-blue-300">{averageWpm}</p>
             <p className="text-blue-200/70 mt-1">Words per minute</p>
           </div>
-
           <div className="bg-zinc-900 p-4 md:p-6 rounded-xl shadow-lg border border-blue-500/20 flex flex-col items-center">
             <h2 className="text-xl font-semibold text-blue-400 mb-2">
               Accuracy
@@ -243,13 +188,21 @@ function Homepage() {
             </p>
             <p className="text-blue-200/70 mt-1">Correct keystrokes</p>
           </div>
-
           <div className="bg-zinc-900 p-4 md:p-6 rounded-xl shadow-lg border border-blue-500/20 flex flex-col items-center">
             <h2 className="text-xl font-semibold text-blue-400 mb-2">
               Tests Taken
             </h2>
             <p className="text-3xl font-bold text-blue-300">{testsTaken}</p>
             <p className="text-blue-200/70 mt-1">Completed sessions</p>
+          </div>
+          <div className="bg-zinc-900 p-4 md:p-6 rounded-xl shadow-lg border border-blue-500/20 flex flex-col items-center">
+            <h2 className="text-xl font-semibold text-blue-400 mb-2">
+              Most Played
+            </h2>
+            <p className="text-3xl font-bold text-blue-300">
+              {mostPlayedDifficulty}
+            </p>
+            <p className="text-blue-200/70 mt-1">Preferred difficulty</p>
           </div>
         </div>
       </main>

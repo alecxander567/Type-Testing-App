@@ -1,10 +1,12 @@
 import { X, Timer, Zap, Target } from "lucide-react";
+import React, { useRef, useEffect } from "react";
+import { useTypingTest } from "../hooks/useTypingTest";
 
-// Props interface
+// Typing Modal Interface
 interface TypingModalProps {
   isOpen: boolean;
   onClose: () => void;
-  typing: any;
+  typing: ReturnType<typeof useTypingTest>;
 }
 
 export default function TypingTestModal({
@@ -12,6 +14,17 @@ export default function TypingTestModal({
   onClose,
   typing,
 }: TypingModalProps) {
+  // Ref for input element
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Auto-focus input when modal opens or difficulty/text changes
+  useEffect(() => {
+    if (isOpen && typing.typingText) {
+      inputRef.current?.focus();
+    }
+  }, [typing.difficulty, typing.typingText, isOpen]);
+
+  // Open Modal Check
   if (!isOpen) return null;
 
   return (
@@ -22,31 +35,40 @@ export default function TypingTestModal({
         className="relative w-full max-w-3xl rounded-3xl border border-blue-500/30 bg-gradient-to-br from-zinc-900 via-black to-zinc-900 p-8 shadow-[0_0_50px_rgba(59,130,246,0.3)]"
         onClick={(e) => e.stopPropagation()}>
         <button
-          className="absolute right-6 top-6 rounded-full p-2 text-blue-400 transition-all hover:bg-blue-500/20 hover:text-blue-300 hover:rotate-90"
+          type="button"
+          className="absolute right-6 top-6 z-50 rounded-full p-2 text-blue-400 transition-all hover:bg-blue-500/20 hover:text-blue-300 hover:rotate-90"
           onClick={onClose}>
           <X size={24} />
         </button>
 
-        <div className="mb-8 text-center">
+        <div className="mb-6 text-center relative">
           <h2 className="text-4xl font-bold text-blue-400 mb-2">Typing Test</h2>
-          <p className="text-blue-300/60 text-sm">
+          <p className="text-blue-300/60 text-sm mb-4">
             Type the words below as fast and accurately as you can
           </p>
+
+          <div className="flex justify-end mb-4">
+            <select
+              value={typing.difficulty}
+              onChange={(e) => typing.setDifficulty(e.target.value)}
+              className="rounded-xl border border-blue-500/40 bg-zinc-950/80 text-blue-100 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500/30 transition-all shadow-lg">
+              <option value="Easy">Easy</option>
+              <option value="Medium">Medium</option>
+              <option value="Hard">Hard</option>
+            </select>
+          </div>
         </div>
 
         <div className="mb-6 rounded-2xl border border-blue-500/30 bg-zinc-950/50 p-6 text-lg leading-relaxed shadow-inner backdrop-blur-sm min-h-[120px] flex items-center">
           {typing.typingText ? (
             <div className="w-full">
-              {typing.typingText
-                .split(" ")
-                .filter(Boolean)
-                .map((word: string, i: number) => (
-                  <span
-                    key={i}
-                    className="mr-2 text-blue-200 transition-colors duration-150">
-                    {word}
-                  </span>
-                ))}
+              {typing.typingText.split(" ").map((word, i) => (
+                <span
+                  key={i}
+                  className="mr-2 text-blue-200 transition-colors duration-150">
+                  {word}
+                </span>
+              ))}
             </div>
           ) : (
             <div className="w-full text-center text-blue-400/60 animate-pulse">
@@ -56,6 +78,7 @@ export default function TypingTestModal({
         </div>
 
         <input
+          ref={inputRef}
           value={typing.inputValue}
           onChange={(e) => typing.setInputValue(e.target.value)}
           onKeyDown={typing.handleTyping}
