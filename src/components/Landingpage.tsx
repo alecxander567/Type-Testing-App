@@ -118,7 +118,9 @@ function Landingpage() {
         size={60}
       />
 
-      <h1 className="text-6xl font-extrabold text-blue-400 mb-6">TypeMaster</h1>
+      <h1 className="text-6xl font-extrabold text-blue-400 mb-6">
+        TypeTesting App
+      </h1>
 
       <p className="text-xl text-blue-300 mb-8">
         Test your typing speed. Improve your skills. Track your progress.
@@ -150,7 +152,7 @@ function Landingpage() {
           onClick={() => setShowLogin(false)}>
           <div
             className="relative w-full max-w-md rounded-2xl border border-blue-500 bg-black p-8 shadow-2xl 
-                 animate-[fadeInScale_0.25s_ease-out] text-blue-300"
+             animate-fadeIn animate-scaleUp text-blue-300"
             onClick={(e) => e.stopPropagation()}>
             <button
               className="absolute top-4 right-4 text-blue-400 hover:text-blue-300 transition"

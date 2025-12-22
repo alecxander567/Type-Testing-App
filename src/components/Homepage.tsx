@@ -1,4 +1,4 @@
-import { Keyboard, Zap } from "lucide-react";
+import { Keyboard, Zap, User } from "lucide-react";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useTypingTest } from "./hooks/useTypingTest";
@@ -23,7 +23,9 @@ function Homepage() {
   const [typingData, setTypingData] = useState<{ test: string; wpm: number }[]>(
     []
   );
+  const [profileImage, setProfileImage] = useState<string | null>(null);
 
+  // Call the typing stats hook
   const { averageWpm, averageAccuracy, testsTaken, mostPlayedDifficulty } =
     useTypingStats(username);
 
@@ -68,11 +70,41 @@ function Homepage() {
     return () => clearInterval(intervalId);
   }, [username]);
 
-  // Get username from localStorage
+  // Fetch username on mount
   useEffect(() => {
     const storedUsername = localStorage.getItem("username");
-    if (storedUsername) setUsername(storedUsername);
+    if (storedUsername) {
+      setUsername(storedUsername);
+    }
   }, []);
+
+  // Fetch profile image
+  useEffect(() => {
+    if (!username) return;
+
+    const fetchProfile = async () => {
+      try {
+        const { data } = await axios.get(
+          `http://localhost:8000/api/profile/?username=${username}`,
+          {
+            headers: {
+              Authorization: `Token ${localStorage.getItem("token")}`,
+            },
+          }
+        );
+        if (data.profile_image) {
+          setProfileImage(`http://localhost:8000${data.profile_image}`);
+        } else {
+          setProfileImage(null);
+        }
+      } catch (err) {
+        console.error("Failed to fetch profile image", err);
+        setProfileImage(null);
+      }
+    };
+
+    fetchProfile();
+  }, [username]);
 
   return (
     <div className="flex flex-col h-screen bg-black text-blue-100">
@@ -80,13 +112,27 @@ function Homepage() {
 
       <main className="flex-1 overflow-y-auto p-6 md:p-8">
         <div className="flex items-center justify-between mb-4 md:mb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-blue-400">
-              Welcome <span className="text-blue-300">{username}</span>👋
-            </h1>
-            <p className="text-blue-200/70 mt-1 md:mt-2">
-              Start a typing test or check your performance analytics.
-            </p>
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-full bg-zinc-800 flex items-center justify-center overflow-hidden border-2 border-blue-500">
+              {profileImage ? (
+                <img
+                  src={profileImage}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <User className="w-10 h-10 text-blue-400" />
+              )}
+            </div>
+
+            <div>
+              <h1 className="text-3xl font-bold text-blue-400">
+                Welcome <span className="text-blue-300">{username}</span>👋
+              </h1>
+              <p className="text-blue-200/70 mt-1 md:mt-2">
+                Start a typing test or check your performance analytics.
+              </p>
+            </div>
           </div>
 
           <button
